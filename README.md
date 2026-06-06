@@ -1,0 +1,1 @@
+Anime project with Fast API
