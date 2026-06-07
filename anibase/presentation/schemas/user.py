@@ -27,4 +27,4 @@ class UserAnimeResponse(BaseModel):
     user_id: str
     anime_id: str
     status: UserAnimeStatusEnum
-    score: Optional[int] = Field(None, ge=1, le=10)
+    score: Optional[int] = None

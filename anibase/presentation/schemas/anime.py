@@ -21,7 +21,7 @@ class AnimeResponse(BaseModel):
 
 
 class AnimeUpdateRequest(BaseModel):
-    title: Optional[str] = Field(None,min_length=1,max_length=200)
+    title: str = Field(None,min_length=1,max_length=200)
     description: Optional[str] = None
     episodes: int = None
     rating: float = None
