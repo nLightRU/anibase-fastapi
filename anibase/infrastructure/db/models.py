@@ -46,7 +46,8 @@ class Anime(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     title:Mapped[str] = mapped_column(String(200), nullable=False)
-    description:Mapped[str] = mapped_column(Text, nullable=False)
+    episodes: Mapped[int] = mapped_column(Integer, nullable=True)
+    description:Mapped[str] = mapped_column(Text, nullable=True)
     is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     user_anime_list: Mapped[list['UserAnime']] = relationship('UserAnime', back_populates='anime')
