@@ -20,10 +20,15 @@ class UserRepository:
         return self._session.scalars(select(User)).all()
 
     def create(self, user: User) -> User | None:
-        self._session.add(user)
-        self._session.commit()
-        self._session.refresh(user)
-        return user
+        try:
+            self._session.add(user)
+            self._session.commit()
+            self._session.refresh(user)
+            return user
+        except Exception as e:
+            self._session.rollback()
+            raise e
+
 
     def update(self, user: User) -> User | None:
         self._session.merge(user)

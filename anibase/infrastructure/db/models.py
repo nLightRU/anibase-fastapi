@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import String, Integer, ForeignKey, Text, CheckConstraint, MetaData
+from sqlalchemy import String, Integer, Boolean, ForeignKey, Text, CheckConstraint, MetaData
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 POSTGRES_NAMING_CONVENTION = {
@@ -76,7 +76,7 @@ class UserAnime(Base):
     )
     score: Mapped[int] = mapped_column(
         Integer,
-        CheckConstraint('score BETWEEN 1 AND 10'),
+        CheckConstraint('score BETWEEN 1 AND 10', name='check_user_anime_score'),
         nullable=True
     )
 
