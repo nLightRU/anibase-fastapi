@@ -52,6 +52,24 @@ class Anime(Base):
 
     user_anime_list: Mapped[list['UserAnime']] = relationship('UserAnime', back_populates='anime')
 
+    @classmethod
+    def create_test_anime(cls,
+        anime_id: uuid.UUID = None,
+        title: str='Test Anime',
+        episodes: int=10,
+        description: str='Test Anime description',
+        is_hidden: bool=False
+    ):
+        if anime_id is None:
+            anime_id = uuid.uuid4()
+        return cls(
+            id=anime_id,
+            title=title,
+            episodes=episodes,
+            description=description,
+            is_hidden=is_hidden,
+        )
+
 
 class UserAnimeStatus(Base):
     __tablename__ = 'user_anime_statuses'
