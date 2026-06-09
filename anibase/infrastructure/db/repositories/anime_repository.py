@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from anibase.application.dto import AnimeDTO
 from anibase.infrastructure.db.models import Anime
 
 
@@ -10,26 +11,59 @@ class AnimeRepository:
     def __init__(self, session: Session):
         self._session = session
 
-    def get_by_id(self, anime_id: UUID) -> type[AnimeRepository] | None:
-        return self._session.get(AnimeRepository, anime_id)
+    @staticmethod
+    def _create_dto(anime_model: Anime):
+        return AnimeDTO(
+            id=anime_model.id,
+            title=anime_model.title,
+            description=anime_model.description,
+            episodes=anime_model.episodes,
+            is_hidden=anime_model.is_hidden
+        )
 
-    def get_by_tile(self, title: str) -> type[AnimeRepository] | None:
-        return self._session.scalar(select(Anime).where(Anime.title == title))
-
-    def list_all(self):
-        return self._session.scalars(select(Anime)).all()
-
-    def create(self, anime: Anime) -> Anime | None:
-        self._session.add(anime)
+    def create(self, anime: AnimeDTO) -> AnimeDTO | None:
+        anime_model = Anime(
+            id=anime.id,
+            title=anime.title,
+            description=anime.description,
+            episodes=anime.episodes,
+            is_hidden=anime.is_hidden
+        )
+        self._session.add(anime_model)
         self._session.commit()
-        self._session.refresh(anime)
-        return anime
+        self._session.refresh(anime_model)
+        return AnimeRepository._create_dto(anime_model)
 
-    def update(self, anime: Anime) -> Anime | None:
-        self._session.merge(anime)
+    def get_by_id(self, anime_id: UUID) -> AnimeDTO | None:
+        anime_model = self._session.get(Anime, anime_id)
+        if not anime_model:
+            return None
+        return AnimeRepository._create_dto(anime_model)
+
+
+    def get_all(self) -> list[AnimeDTO]:
+        result = self._session.scalars(select(Anime))
+        return [AnimeRepository._create_dto(a) for a in result]
+
+    def update(self, anime_dto: AnimeDTO) -> AnimeDTO | None:
+        anime_model = self._session.get(Anime, anime_dto.id)
+        if not anime_model:
+            raise ValueError('Anime not found')
+
+        anime_model.title = anime_dto.title
+        anime_model.description = anime_dto.description
+        anime_model.episodes = anime_dto.episodes
+        anime_model.is_hidden = anime_dto.is_hidden
+
         self._session.commit()
-        return anime
+        self._session.refresh(anime_model)
 
-    def delete(self, anime: Anime):
-        self._session.delete(anime)
+        return AnimeRepository._create_dto(anime_model)
+
+    def delete(self, anime_id: UUID):
+        anime_model = self._session.get(Anime, anime_id)
+        if not anime_model:
+            raise ValueError('Anime not found')
+
+        self._session.delete(anime_model)
         self._session.commit()
