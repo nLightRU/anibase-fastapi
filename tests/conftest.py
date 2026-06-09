@@ -1,13 +1,6 @@
-import pytest
-from fastapi.testclient import TestClient
-from anibase.main import app
-
 pytest_plugins = [
+    'tests.fixtures.client',
     'tests.fixtures.database',
+    'tests.fixtures.roles',
     'tests.fixtures.repositories'
 ]
-
-@pytest.fixture
-def client():
-    with TestClient(app) as client:
-        yield client

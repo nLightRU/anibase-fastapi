@@ -44,16 +44,3 @@ def db_session():
     yield session
     session.rollback()
     session.close()
-
-
-@pytest.fixture(autouse=True)
-def clean_db(db_session):
-    yield
-
-    session = TestSessionLocal()
-    try:
-        session.execute(text('DELETE FROM users;'))
-        session.commit()
-    except Exception:
-        session.rollback()
-

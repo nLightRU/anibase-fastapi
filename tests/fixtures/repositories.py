@@ -8,7 +8,6 @@ from anibase.infrastructure.db.repositories import (
     RoleRepository
 )
 
-
 @pytest.fixture
 def anime_repository(db_session):
     return AnimeRepository(session=db_session)
