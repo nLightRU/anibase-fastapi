@@ -11,6 +11,16 @@ class UserRepository:
     def __init__(self, session: Session):
         self._session = session
 
+    @staticmethod
+    def _create_dto(user: User):
+        return UserDTO(
+            id=user.id,
+            username=user.username,
+            email=user.email,
+            password_hash=user.password_hash,
+            role=user.role.name
+        )
+
     def create(self, user_dto: UserDTO) -> UserDTO:
         role =self._session.scalar(select(Role).where(Role.name==user_dto.role))
         user = User(
@@ -27,53 +37,23 @@ class UserRepository:
         except Exception as e:
             self._session.rollback()
             raise e
-        return UserDTO(
-            id=user.id,
-            username=user.username,
-            email=user.email,
-            password_hash=user.password_hash,
-            role=role.name
-        )
+        return UserRepository._create_dto(user)
 
     def get_by_id(self, user_id: UUID) -> UserDTO | None:
         user_model = self._session.get(User, user_id)
         if not user_model:
             return None
-        return UserDTO(
-            id=user_model.id,
-            username=user_model.username,
-            email=user_model.email,
-            password_hash=user_model.password_hash,
-            role=user_model.role.name,
-        )
+        return UserRepository._create_dto(user_model)
 
     def get_by_email(self, email: str) -> UserDTO | None:
         user_model = self._session.scalars(select(User).where(User.email == email)).first()
         if not user_model:
             return None
-        return UserDTO(
-            id=user_model.id,
-            username=user_model.username,
-            email=user_model.email,
-            password_hash=user_model.password_hash,
-            role=user_model.role.name
-        )
+        return UserRepository._create_dto(user_model)
 
     def get_all(self) -> list[UserDTO]:
         users = self._session.scalars(select(User)).all()
-        if not users:
-            return []
-
-        return [
-            UserDTO(
-                id=u.id,
-                username=u.username,
-                email=u.email,
-                password_hash=u.password_hash,
-                role=u.role.name
-            )
-            for u in users
-        ]
+        return [UserRepository._create_dto(u)  for u in users]
 
     def update(self, user: UserDTO) -> UserDTO:
         user_model = self._session.scalar(select(User).where(User.id == user.id))
@@ -88,13 +68,7 @@ class UserRepository:
 
         self._session.commit()
 
-        return UserDTO(
-            id=user_model.id,
-            username=user_model.username,
-            email=user_model.email,
-            password_hash=user_model.password_hash,
-            role=user_model.role.name
-        )
+        return UserRepository._create_dto(user_model)
 
     def delete(self, user_id: UUID) -> None:
         user_model = self._session.get(User, user_id)
