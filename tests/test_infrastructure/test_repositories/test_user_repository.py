@@ -28,8 +28,8 @@ def test_create(db_session, user_repository):
     db_session.commit()
 
 
-def test_get_by_id(db_session, user_repository, roles):
-    role = roles['user']
+def test_get_by_id(db_session, user_repository, roles_dict):
+    role = roles_dict['user']
 
     user_model = User(
         username='test_user',
@@ -52,8 +52,8 @@ def test_get_by_id(db_session, user_repository, roles):
     db_session.commit()
 
 
-def test_get_by_id_none(db_session, user_repository, roles):
-    role = roles['user']
+def test_get_by_id_none(db_session, user_repository, roles_dict):
+    role = roles_dict['user']
     user_id = uuid4()
     not_found_id = uuid4()
 
@@ -75,8 +75,8 @@ def test_get_by_id_none(db_session, user_repository, roles):
     db_session.commit()
 
 
-def test_get_by_email(db_session, user_repository, roles):
-    role = roles['user']
+def test_get_by_email(db_session, user_repository, roles_dict):
+    role = roles_dict['user']
 
     user_model = User(
         username='test_user',
@@ -99,8 +99,8 @@ def test_get_by_email(db_session, user_repository, roles):
     db_session.commit()
 
 
-def test_get_list(db_session, user_repository, roles):
-    role = roles['user']
+def test_get_list(db_session, user_repository, roles_dict):
+    role = roles_dict['user']
 
     user_model_a = User(
         username='test_user_a',
@@ -129,8 +129,8 @@ def test_get_list(db_session, user_repository, roles):
     db_session.commit()
 
 
-def test_update(db_session, user_repository, roles):
-    role = roles['user']
+def test_update(db_session, user_repository, roles_dict):
+    role = roles_dict['user']
     user_id = uuid4()
 
     user_model = User(
@@ -163,7 +163,7 @@ def test_update(db_session, user_repository, roles):
     db_session.commit()
 
 
-def test_update_not_found(db_session, user_repository, roles):
+def test_update_not_found(db_session, user_repository, roles_dict):
     user_id = uuid4()
     not_found_id = uuid4()
     user_model = User(
@@ -171,7 +171,7 @@ def test_update_not_found(db_session, user_repository, roles):
         username='test_user',
         email='test@example.com',
         password_hash='secret123',
-        role_id=roles['user'].id
+        role_id=roles_dict['user'].id
     )
 
     db_session.add(user_model)
@@ -182,7 +182,7 @@ def test_update_not_found(db_session, user_repository, roles):
         username='test_user',
         email='test@ex.com',
         password_hash='fasdfasdfasdf',
-        role = roles['user'].name
+        role = roles_dict['user'].name
     )
 
     with pytest.raises(ValueError):
@@ -192,8 +192,8 @@ def test_update_not_found(db_session, user_repository, roles):
     db_session.commit()
 
 
-def test_delete(db_session, user_repository, roles):
-    role = roles['user']
+def test_delete(db_session, user_repository, roles_dict):
+    role = roles_dict['user']
     user_id = uuid4()
 
     user_model = User(
