@@ -6,7 +6,7 @@ from anibase.infrastructure.db.session import engine
 
 
 @asynccontextmanager
-async def lifespan():
+async def lifespan(app: FastAPI):
     Base.metadata.create_all(engine)
     yield
 
