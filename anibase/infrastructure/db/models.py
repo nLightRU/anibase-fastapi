@@ -33,7 +33,7 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     username: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-    password_hash: Mapped[str] = mapped_column(String(128), nullable=False)
+    password_hash: Mapped[str] = mapped_column(String(256), nullable=False)
 
     role_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('roles.id'), nullable=False)
     role: Mapped[Role] = relationship('Role', back_populates='users')
