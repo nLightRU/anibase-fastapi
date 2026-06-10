@@ -9,7 +9,7 @@ from anibase.infrastructure.db.models import UserAnime, UserAnimeStatus
 
 
 class UserAnimeStatusEnum(str, Enum):
-    PLANNED = 'planning'
+    PLANNING = 'planning'
     WATCHING = 'watching'
     ON_HOLD = 'on_hold'
     COMPLETED = 'completed'

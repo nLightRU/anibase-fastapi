@@ -40,6 +40,25 @@ class User(Base):
 
     anime_list: Mapped[list['UserAnime']] = relationship('UserAnime', back_populates='user')
 
+    @classmethod
+    def create_test_user(
+        cls,
+        role_id:uuid.UUID=None, id: uuid.UUID = None,
+        username: str='test_user', email: str='test@anibase.com',
+        password_hash: str='secret123',
+    ):
+        if role_id is None:
+            raise ValueError('Missing role_id for test user')
+        if id is None:
+            id=uuid.uuid4(),
+        return cls(
+            id=id,
+            username=username,
+            email=email,
+            password_hash=password_hash,
+            role_id=role_id
+        )
+
 
 class Anime(Base):
     __tablename__ = 'anime'
