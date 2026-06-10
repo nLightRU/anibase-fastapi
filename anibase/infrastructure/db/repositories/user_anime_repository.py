@@ -28,12 +28,12 @@ class UserAnimeRepository:
         )
 
     @staticmethod
-    def _create_dto(entry: UserAnime):
+    def _create_dto(model: UserAnime):
         return UserAnimeDTO(
-            user_id=entry.user_id,
-            anime_id=entry.anime_id,
-            status=entry.status.name,
-            score=entry.score
+            user_id=model.user_id,
+            anime_id=model.anime_id,
+            status=model.status.name,
+            score=model.score
         )
 
     def create(self, entry: UserAnimeDTO) -> UserAnimeDTO | None:
@@ -71,12 +71,20 @@ class UserAnimeRepository:
         return [UserAnimeRepository._create_dto(e) for e in entries]
 
     def update(self, entry: UserAnimeDTO) -> UserAnimeDTO | None:
-        entry_model = self._session.get(UserAnime, entry_id)
+        entry_model = self._session.scalar(
+            select(UserAnime)
+            .where(
+                UserAnime.user_id == entry.user_id,
+                UserAnime.anime_id == entry.anime_id,
+            )
+        )
         if not entry_model:
             raise ValueError('Not found')
 
+        status_id = self._get_status_id(UserAnimeStatusEnum(value=entry.status))
         entry_model.score = entry.score
-        entry_model.status = entry.status
+        entry_model.status_id = status_id
+
         self._session.commit()
         self._session.refresh(entry_model)
 
