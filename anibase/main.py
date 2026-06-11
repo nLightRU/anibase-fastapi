@@ -1,6 +1,11 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from anibase.presentation.routers import admin_router, auth_router
+
+from anibase.presentation.routers import (
+    auth_router,
+    admin_router,
+    user_router
+)
 from anibase.infrastructure.db.models import Base
 from anibase.infrastructure.db.session import engine
 
@@ -19,6 +24,7 @@ app = FastAPI(
 
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(user_router)
 
 
 @app.get('/health')

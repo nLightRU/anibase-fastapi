@@ -4,18 +4,20 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
+from anibase.infrastructure.auth.jwt_handler import decode_access_token
 from anibase.infrastructure.db.session import SessionLocal
 from anibase.infrastructure.db.repositories import (
     UserRepository,
     AnimeRepository,
     UserAnimeRepository,
-    UserAnimeStatusRepository,
     RoleRepository
 )
 
-from anibase.application.services.auth_service import AuthService
-from anibase.infrastructure.auth.jwt_handler import decode_access_token
-from anibase.application.services.anime_service import AnimeService
+from anibase.application.services import  (
+    AuthService,
+    AnimeService,
+    UserAnimeService
+)
 
 
 bearer = HTTPBearer()
@@ -41,6 +43,10 @@ def get_anime_repo(sess: Session = Depends(get_session)):
     return AnimeRepository(sess)
 
 
+def get_user_anime_repo(sess: Session = Depends(get_session)):
+    return UserAnimeRepository(sess)
+
+
 def get_auth_service(
         user_repo: UserRepository = Depends(get_user_repo),
         role_repo: RoleRepository = Depends(get_role_repo)
@@ -52,6 +58,14 @@ def get_anime_service(
     anime_repo: AnimeRepository = Depends(get_anime_repo)
 ):
     return AnimeService(anime_repo)
+
+
+def get_user_anime_service(
+    anime_repo: AnimeRepository = Depends(get_anime_repo),
+    users_repo: UserRepository = Depends(get_user_repo),
+    user_anime_repo: UserAnimeRepository = Depends(get_user_anime_repo)
+) -> UserAnimeService:
+    return UserAnimeService(entries=user_anime_repo, anime=anime_repo, users=users_repo)
 
 
 def get_current_user(
@@ -69,6 +83,7 @@ def get_current_user(
     if not user_dto:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user_dto.id
+
 
 def get_admin_user(
         current_user_id: UUID = Depends(get_current_user),
