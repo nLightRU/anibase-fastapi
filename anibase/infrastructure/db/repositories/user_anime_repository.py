@@ -30,6 +30,7 @@ class UserAnimeRepository:
     @staticmethod
     def _create_dto(model: UserAnime):
         return UserAnimeDTO(
+            id=model.id,
             user_id=model.user_id,
             anime_id=model.anime_id,
             status=model.status.name,
@@ -91,7 +92,7 @@ class UserAnimeRepository:
         return UserAnimeRepository._create_dto(entry_model)
 
 
-    def delete(self, entry_id: UserAnime):
+    def delete(self, entry_id: UUID):
         entry_model = self._session.get(UserAnime, entry_id)
         if not entry_model:
             raise ValueError('Not found')

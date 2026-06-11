@@ -3,6 +3,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 class UserAnimeDTO(BaseModel):
+    id: UUID
     user_id: UUID
     anime_id: UUID
     status: str
