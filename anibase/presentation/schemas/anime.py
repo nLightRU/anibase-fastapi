@@ -21,6 +21,7 @@ class AnimeResponse(BaseModel):
 
 
 class AnimeUpdateRequest(BaseModel):
+    id: uuid.UUID
     title: str = Field(None,min_length=1,max_length=200)
     description: Optional[str] = None
     episodes: int = None
