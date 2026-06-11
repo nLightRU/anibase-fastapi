@@ -30,7 +30,7 @@ class AuthService:
 
         return created
 
-    def authenticate_user(self, email: str, password: str) -> bool:
+    def authenticate_user(self, email: str, password: str) -> str:
         user_dto = self.user_repository.get_by_email(email)
         if user_dto is None or (not self.hasher.verify_password(password, user_dto.password_hash)):
             raise ValueError('Invalid credentials')
