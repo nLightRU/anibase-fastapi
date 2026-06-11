@@ -1,58 +1,88 @@
-import uuid
+from uuid import UUID
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from anibase.presentation.schemas.anime import (
     AnimeCreateRequest,
     AnimeResponse,
     AnimeUpdateRequest,
 )
 
-router = APIRouter(prefix="/admin/anime", tags=["anime"])
+from anibase.application.services.anime_service import AnimeService
+from anibase.application.dto.anime import AnimeDTO
+from anibase.presentation.dependencies import get_anime_service, get_admin_user
 
-fake_anime_db = {}
+router = APIRouter(prefix="/admin/anime", tags=["admin"])
 
 @router.post("/", response_model=AnimeResponse, status_code=201)
-def create_anime(body: AnimeCreateRequest):
-    new_anime = AnimeResponse(
-        id=uuid.uuid4(),
-        title=body.title,
-        description=body.description,
-        episodes=body.episodes,
-        rating=body.rating,
-        is_hidden=body.is_hidden
-    )
-    fake_anime_db[new_anime.id] = new_anime
-    return new_anime
+def create_anime(
+    body: AnimeCreateRequest,
+    anime_service: AnimeService = Depends(get_anime_service),
+    admin_id: UUID = Depends(get_admin_user),
+) -> AnimeResponse:
+    anime_dto = AnimeDTO.from_request_scheme(body)
+    anime = anime_service.create(anime_dto)
+    return AnimeResponse(id=anime.id, title=anime.title, description=anime.description)
 
 
 @router.get("/", response_model=list[AnimeResponse], status_code=200)
-def list_anime():
-    return list(fake_anime_db.values())
+def list_anime(
+    anime_service: AnimeService = Depends(get_anime_service),
+    admin_id: UUID = Depends(get_admin_user),
+) -> list[AnimeResponse]:
+    anime = anime_service.list_anime()
+    return [
+        AnimeResponse(id=a.id, title=a.title, episodes=a.episodes, description=a.description)
+        for a in anime
+    ]
 
 
 @router.get("/{anime_id}", response_model=AnimeResponse, status_code=200)
-def get_anime(anime_id: uuid.UUID):
-    fake_anime = fake_anime_db.get(anime_id)
-    if not fake_anime:
+def get_anime(
+    anime_id: UUID,
+    anime_service: AnimeService = Depends(get_anime_service),
+    admin_id: UUID = Depends(get_admin_user),
+) -> AnimeResponse:
+    try:
+        anime = anime_service.get_by_id(anime_id)
+        return AnimeResponse(
+            id=anime.id,
+            title=anime.title,
+            episodes=anime.episodes,
+            description=anime.description,
+        )
+    except ValueError:
         raise HTTPException(status_code=404, detail="Anime not found")
 
 
 @router.put("/{anime_id}", response_model=AnimeResponse, status_code=200)
-def update_anime(anime_id: uuid.UUID, body: AnimeUpdateRequest):
-    fake_anime = fake_anime_db.get(anime_id)
-    if not fake_anime:
-        raise HTTPException(status_code=404, detail="Anime not found")
+def update_anime(
+    anime_id: UUID,
+    body: AnimeUpdateRequest,
+    anime_service: AnimeService = Depends(get_anime_service),
+    admin_id: UUID = Depends(get_admin_user),
 
-    update_data = body.model_dump(exclude_unset=True)
-    updated_anime = fake_anime.copy(update=update_data)
-    fake_anime_db[anime_id] = updated_anime
-    return updated_anime
+) -> AnimeResponse:
+    try:
+        update_dto = AnimeDTO.from_request_scheme(body)
+        updated_anime = anime_service.update_anime(update_dto)
+        return AnimeResponse(
+            id=updated_anime.id,
+            title=updated_anime.title,
+            description=updated_anime.description,
+            episodes=updated_anime.episodes
+        )
+
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Anime not found")
 
 
 @router.delete("/{anime_id}", status_code=204)
-def delete_anime(anime_id: uuid.UUID):
-    fake_anime = fake_anime_db.get(anime_id)
-    if not fake_anime:
+def delete_anime(
+    anime_id: UUID,
+    anime_service: AnimeService = Depends(get_anime_service),
+    admin_id: UUID = Depends(get_admin_user),
+):
+    try:
+        _ = anime_service.soft_delete(anime_id)
+    except ValueError:
         raise HTTPException(status_code=404, detail="Anime not found")
-    del fake_anime_db[anime_id]
-    return

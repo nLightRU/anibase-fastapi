@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from anibase.application.dto import AnimeDTO
 from anibase.infrastructure.db.repositories import AnimeRepository
@@ -9,6 +9,7 @@ class AnimeService:
         self.anime_repository = anime_repository
 
     def create(self, anime: AnimeDTO) -> AnimeDTO:
+        anime.id = uuid4()
         return self.anime_repository.create(anime)
 
     def get_by_id(self, anime_id: UUID) -> AnimeDTO:
@@ -22,6 +23,13 @@ class AnimeService:
 
     def update_anime(self, anime: AnimeDTO) -> AnimeDTO:
         return self.anime_repository.update(anime)
+
+    def soft_delete(self, anime_id: UUID) -> AnimeDTO:
+        anime_update = self.anime_repository.get_by_id(anime_id)
+        if anime_update.is_hidden:
+            raise ValueError('Anime not found')
+        anime_update.is_hidden = True
+        return self.anime_repository.update(anime_update)
 
     def delete(self, anime_id: UUID):
         self.anime_repository.delete(anime_id)
