@@ -1,6 +1,11 @@
 import uuid
 
-from sqlalchemy import String, Integer, Boolean, ForeignKey, Text, CheckConstraint, MetaData
+from sqlalchemy import (
+    MetaData, Table, Column,
+    String, Integer, Boolean, Text,
+    ForeignKey, CheckConstraint
+)
+
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 POSTGRES_NAMING_CONVENTION = {
@@ -17,6 +22,13 @@ metadata_obj = MetaData(naming_convention=POSTGRES_NAMING_CONVENTION)
 class Base(DeclarativeBase):
     metadata = metadata_obj
 
+
+anime_genres = Table(
+    'anime_genres',
+    Base.metadata,
+    Column('anime_id', ForeignKey('anime.id'), on_delete='CASCADE', primary_key=True),
+    Column('genre_id', ForeignKey('genres.id'), on_delete='CASCADE', primary_key=True)
+)
 
 class Role(Base):
     __tablename__ = 'roles'
@@ -71,6 +83,12 @@ class Anime(Base):
 
     user_anime_list: Mapped[list['UserAnime']] = relationship('UserAnime', back_populates='anime')
 
+    genres: Mapped[list['Genre']] = relationship(
+        'Genre',
+        secondary=anime_genres,
+        back_populates='anime'
+    )
+
     @classmethod
     def create_test_anime(cls,
         anime_id: uuid.UUID = None,
@@ -123,4 +141,16 @@ class UserAnime(Base):
     status: Mapped['UserAnimeStatus'] = relationship(
         'UserAnimeStatus',
         back_populates='user_anime_entries'
+    )
+
+
+class Genre(Base):
+    __tablename__ = 'genres'
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+
+    anime: Mapped[list['Anime']] = relationship(
+        'Anime',
+        secondary=anime_genres,
+        back_populates='genres'
     )
