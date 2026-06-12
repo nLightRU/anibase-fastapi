@@ -1,4 +1,7 @@
+from uuid import UUID
+
 from fastapi import APIRouter, HTTPException, Depends
+from anibase.application.dto import UserAnimeDTO
 from anibase.presentation.schemas.user import (
     UserAnimeCreateRequest,
     UserAnimeUpdateRequest,
@@ -9,18 +12,15 @@ from anibase.presentation.dependencies import get_current_user, get_user_anime_s
 
 router = APIRouter(prefix="/user", tags=["user"])
 
-@router.post("/{user_id}/anime", response_model=UserAnimeResponse, status_code=200, tags=["user"])
+@router.post("/anime", response_model=UserAnimeResponse, status_code=200, tags=["user"])
 def add_anime_to_user(
     body: UserAnimeCreateRequest,
     user_anime_service = Depends(get_user_anime_service),
     current_user_id = Depends(get_current_user),
 ):
     try:
-        entry = user_anime_service.add_anime_to_user(
-            user_id=current_user_id,
-            anime_id=body.anime_id,
-            status=body.status.value
-        )
+        entry_dto = UserAnimeDTO.from_request(body, current_user_id)
+        entry = user_anime_service.add_anime_to_user(entry_dto)
         return UserAnimeResponse(
             id=str(entry.id),
             user_id=str(entry.user_id),

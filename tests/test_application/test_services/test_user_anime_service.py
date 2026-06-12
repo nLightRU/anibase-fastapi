@@ -1,4 +1,5 @@
 import time
+import uuid
 
 from sqlalchemy import select
 
@@ -8,6 +9,8 @@ from anibase.infrastructure.db.models import (
     UserAnime,
     UserAnimeStatus
 )
+from application.dto import UserAnimeDTO
+
 
 def test_add_anime(db_session, roles_dict, user_anime_service):
     username = f'test_user_{int(time.time())}'
@@ -23,11 +26,20 @@ def test_add_anime(db_session, roles_dict, user_anime_service):
     db_session.add_all([test_anime, test_user])
     db_session.commit()
 
-    entry = user_anime_service.add_anime_to_user(user_id=test_user.id, anime_id=test_anime.id, status='planning')
+    add_entry = UserAnimeDTO(
+        id =uuid.uuid4(),
+        anime_id=test_anime.id,
+        user_id=test_user.id,
+        score=8.0,
+        status='planning'
+    )
+
+    entry = user_anime_service.add_anime_to_user(add_entry)
     assert entry is not None
     assert entry.anime_id == test_anime.id
     assert entry.user_id == test_user.id
     assert entry.status == 'planning'
+    assert entry.score == 8.0
 
     e = db_session.get(UserAnime, entry.id)
     db_session.delete(e)

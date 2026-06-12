@@ -31,23 +31,22 @@ class UserAnimeService:
     def _anime_is_valid(self, anime_id):
         return self.anime.get_by_id(anime_id) is not None
 
-    def add_anime_to_user(self, user_id: UUID = None, anime_id: UUID = None, status: str = None) -> UserAnimeDTO:
-        if user_id is None or anime_id is None or status is None:
-            raise ValueError('Missing arguments')
-        if not (self._user_is_valid(user_id) and self._anime_is_valid(anime_id)):
+    def add_anime_to_user(self, entry: UserAnimeDTO)  -> UserAnimeDTO:
+        if not (self._user_is_valid(entry.user_id) and self._anime_is_valid(entry.anime_id)):
             raise ValueError('Invalid anime or user id')
-        entry = self.entries.get_by_user_and_anime(user_id, anime_id)
-        if entry is None:
+        existed_entry = self.entries.get_by_user_and_anime(entry.user_id, entry.anime_id)
+        if existed_entry is None:
             return self.entries.create(
                 UserAnimeDTO(
                     id=uuid4(),
-                    user_id=user_id,
-                    anime_id=anime_id,
-                    status=status
+                    user_id=entry.user_id,
+                    anime_id=entry.anime_id,
+                    status=entry.status,
+                    score=entry.score
                 )
             )
         else:
-            return entry
+            return existed_entry
 
     def get_by_user_anime(self, user_id: UUID = None, anime_id: UUID = None):
         if not (self._user_is_valid(user_id) and self._anime_is_valid(anime_id)):
