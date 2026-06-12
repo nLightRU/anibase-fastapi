@@ -48,6 +48,12 @@ class UserAnimeService:
         else:
             return existed_entry
 
+    def get_by_entry_id(self, entry_id: UUID) -> UserAnimeDTO:
+        entry = self.entries.get_by_id(entry_id)
+        if entry is None:
+            raise ValueError('Entry not found')
+        return entry
+
     def get_by_user_anime(self, user_id: UUID = None, anime_id: UUID = None):
         if not (self._user_is_valid(user_id) and self._anime_is_valid(anime_id)):
             raise ValueError('Invalid anime or user id')
@@ -63,10 +69,21 @@ class UserAnimeService:
             raise ValueError('Missing user_id')
         return self.entries.list_by_user(user_id)
 
-    def remove_anime_from_user(self, user_id, anime_id):
-        if not (self._user_is_valid(user_id) and self._anime_is_valid(anime_id)):
+
+    def update_user_anime_entry(self, update_data: UserAnimeDTO):
+        if not (self._user_is_valid(update_data.user_id) and self._anime_is_valid(update_data.anime_id)):
             raise ValueError('Invalid anime or user id')
-        entry = self.entries.get_by_user_and_anime(user_id, anime_id)
+        try:
+            entry = self.entries.update(update_data)
+            return entry
+        except ValueError as e:
+            raise e
+
+
+    def remove_anime_from_user(self, entry_id: UUID, user_id: UUID):
+        entry = self.entries.get_by_id(entry_id)
+        if entry.user_id != user_id:
+            raise ValueError('Invalid user id')
         if entry is None:
             raise ValueError('Entry not found')
         self.entries.delete(entry.id)
