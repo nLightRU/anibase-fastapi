@@ -3,7 +3,12 @@ import pytest
 from sqlalchemy import create_engine, select, text
 from sqlalchemy.orm import sessionmaker
 
-from anibase.infrastructure.db.models import Base, Role, UserAnimeStatus
+from anibase.infrastructure.db.models import (
+    Base,
+    Role,
+    UserAnimeStatus,
+    Genre,
+)
 from anibase.infrastructure.config import settings
 
 
@@ -30,6 +35,16 @@ def setup_db():
                 UserAnimeStatus(name='completed'),
                 UserAnimeStatus(name='on_hold'),
                 UserAnimeStatus(name='dropped')
+            ])
+            session.commit()
+        if not session.scalar(select(Genre)):
+            session.add_all([
+                Genre(name='Action'),
+                Genre(name='Drama'),
+                Genre(name='Comedy'),
+                Genre(name='Fantasy'),
+                Genre(name='Slice of Life'),
+                Genre(name='Detective')
             ])
             session.commit()
     finally:

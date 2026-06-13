@@ -6,3 +6,5 @@ class GenreEnum(str, Enum):
     COMEDY = 'Comedy'
     SLICE_OF_LIFE = 'Slice of Life'
     DETECTIVE = 'Detective'
+    FANTASY = 'Fantasy'
+
