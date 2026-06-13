@@ -5,8 +5,10 @@ from anibase.infrastructure.db.repositories import (
     UserRepository,
     UserAnimeRepository,
     UserAnimeStatusRepository,
-    RoleRepository
+    RoleRepository,
+    GenreRepository
 )
+
 
 @pytest.fixture
 def anime_repository(db_session):
@@ -31,3 +33,7 @@ def user_anime_status_repository(db_session):
 @pytest.fixture
 def role_repository(db_session):
     return RoleRepository(session=db_session)
+
+@pytest.fixture
+def genre_repository(db_session):
+    return GenreRepository(session=db_session)
