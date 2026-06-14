@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from anibase.presentation.schemas.anime import AnimeCreateRequest
 from anibase.presentation.schemas.anime import AnimeUpdateRequest
+from anibase.application.dto.genre import GenreDTO
 
 
 class AnimeDTO(BaseModel):
@@ -12,6 +13,7 @@ class AnimeDTO(BaseModel):
     description: str | None
     episodes: int
     is_hidden: bool
+    genres: list[GenreDTO] | None
 
     class Config:
         from_attributes = True
@@ -26,7 +28,8 @@ class AnimeDTO(BaseModel):
             title=body.title,
             description=body.description,
             episodes=body.episodes,
-            is_hidden=body.is_hidden
+            is_hidden=body.is_hidden,
+            genres=[]
         )
 
     @classmethod
@@ -41,5 +44,6 @@ class AnimeDTO(BaseModel):
         return cls(
             id=anime_id, title=title,
             description=description, episodes=episodes,
-            is_hidden=is_hidden
+            is_hidden=is_hidden,
+            genres=[]
         )

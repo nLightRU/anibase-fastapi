@@ -2,7 +2,6 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-
 from anibase.presentation.schemas.user import UserAnimeCreateRequest
 
 class UserAnimeDTO(BaseModel):

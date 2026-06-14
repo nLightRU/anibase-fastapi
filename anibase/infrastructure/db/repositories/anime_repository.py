@@ -3,8 +3,8 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from anibase.application.dto import AnimeDTO
-from anibase.infrastructure.db.models import Anime
+from anibase.application.dto import AnimeDTO, GenreDTO
+from anibase.infrastructure.db.models import Anime, Genre
 
 
 class AnimeRepository:
@@ -18,16 +18,23 @@ class AnimeRepository:
             title=anime_model.title,
             description=anime_model.description,
             episodes=anime_model.episodes,
-            is_hidden=anime_model.is_hidden
+            is_hidden=anime_model.is_hidden,
+            genres=[GenreDTO(id=g.id, name=g.name) for g in anime_model.genres]
         )
 
     def create(self, anime: AnimeDTO) -> AnimeDTO | None:
+        genre_names = [g.name for g in anime.genres]
+        genres = self._session.scalars(
+            select(Genre)
+            .where(Genre.name.in_(genre_names))
+        ).all()
         anime_model = Anime(
             id=anime.id,
             title=anime.title,
             description=anime.description,
             episodes=anime.episodes,
-            is_hidden=anime.is_hidden
+            is_hidden=anime.is_hidden,
+            genres=list(genres),
         )
         self._session.add(anime_model)
         self._session.commit()
@@ -39,7 +46,6 @@ class AnimeRepository:
         if not anime_model:
             return None
         return AnimeRepository._create_dto(anime_model)
-
 
     def get_all(self) -> list[AnimeDTO]:
         result = self._session.scalars(select(Anime))

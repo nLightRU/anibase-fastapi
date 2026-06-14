@@ -1,12 +1,13 @@
+import time
 from uuid import uuid4
 
 import pytest
 
-from anibase.application.dto import AnimeDTO
+from anibase.application.dto import AnimeDTO, GenreDTO
 from anibase.infrastructure.db.models import Anime
 
 
-def test_create(db_session, anime_repository):
+def test_create_no_genres(db_session, anime_repository):
     anime_dto = AnimeDTO.create_test_anime()
 
     anime_repository.create(anime_dto)
@@ -21,6 +22,20 @@ def test_create(db_session, anime_repository):
 
     db_session.delete(anime_model)
     db_session.commit()
+
+
+def test_create_with_genre(db_session, anime_repository, genres_dict):
+    anime_title = f'Test Anime {int(time.time())}'
+    anime_dto = AnimeDTO.create_test_anime(title=anime_title)
+    genre = genres_dict['Sports']
+    anime_dto.genres.append(GenreDTO(id=genre.id, name=genre.name))
+    anime_repository.create(anime_dto)
+
+    anime_model: Anime = db_session.get(Anime, anime_dto.id)
+    assert anime_model is not None
+
+    # db_session.delete(anime_model)
+    # db_session.commit()
 
 
 def test_get_by_id(db_session, anime_repository):

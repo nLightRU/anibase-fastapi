@@ -1,6 +1,7 @@
 from uuid import uuid4
 import random
 
+import pytest
 from anibase.application.dto import GenreDTO
 from anibase.infrastructure.db.models import Genre
 
@@ -37,6 +38,12 @@ def test_get_by_id(db_session, genre_repository):
 
     db_session.delete(g)
     db_session.commit()
+
+
+def test_create_not_valid_name(db_session, genre_repository):
+    genre_str = 'Abcde'
+    with pytest.raises(ValueError):
+        genre = genre_repository.create(genre_str)
 
 
 def test_get_by_name(db_session, genre_repository):
