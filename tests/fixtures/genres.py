@@ -10,4 +10,5 @@ def genres_dict(setup_db) -> dict[str, Genre]:
     session = TestSessionLocal()
     genres = session.scalars(select(Genre))
     genres_dict = {genre.name: genre for genre in genres}
+    session.close()
     return genres_dict

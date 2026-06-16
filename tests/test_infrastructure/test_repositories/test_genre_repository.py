@@ -5,8 +5,8 @@ import pytest
 from anibase.application.dto import GenreDTO
 from anibase.infrastructure.db.models import Genre
 
-test_genres_a = ('Action', 'Comedy', 'Slice of life')
-test_genres_b = ('Drama', 'Detective', 'Fantasy')
+test_genres_a = ('action', 'comedy', 'slice of life')
+test_genres_b = ('drama', 'detective', 'fantasy')
 
 def test_create(db_session, genre_repository):
     genre_str = random.choice(test_genres_a)

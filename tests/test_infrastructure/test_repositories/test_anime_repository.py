@@ -24,22 +24,35 @@ def test_create_no_genres(db_session, anime_repository):
     db_session.commit()
 
 
-def test_create_with_genre(db_session, anime_repository, genres_dict):
+def test_create_with_genre(db_session, genres_dict, anime_repository ):
     anime_title = f'Test Anime {int(time.time())}'
     anime_dto = AnimeDTO.create_test_anime(title=anime_title)
-    genre = genres_dict['Sports']
+    genre = genres_dict['sports']
     anime_dto.genres.append(GenreDTO(id=genre.id, name=genre.name))
-    anime_repository.create(anime_dto)
+    created = anime_repository.create(anime_dto)
 
-    anime_model: Anime = db_session.get(Anime, anime_dto.id)
+    anime_model: Anime = db_session.get(Anime, created.id)
     assert anime_model is not None
+    assert genre.id == created.genres[0].id
 
-    # db_session.delete(anime_model)
-    # db_session.commit()
+    db_session.delete(anime_model)
+    db_session.commit()
+
+def test_create_with_two_genres(db_session, genres_dict, anime_repository ):
+    anime_title = f'Test Anime {int(time.time())}'
+    anime_dto = AnimeDTO.create_test_anime(title=anime_title)
+    genres = [genres_dict['sports'], genres_dict['ecchi']]
+    anime_dto.genres.extend(genres)
+    created = anime_repository.create(anime_dto)
+
+    assert created is not None
+    assert len(created.genres) == 2
 
 
-def test_get_by_id(db_session, anime_repository):
+def test_get_by_id(db_session, genres_dict, anime_repository):
     test_model = Anime.create_test_anime()
+    genres = [genres_dict['sports'], genres_dict['romance']]
+    test_model.genres = genres
 
     db_session.add(test_model)
     db_session.commit()
@@ -52,6 +65,7 @@ def test_get_by_id(db_session, anime_repository):
     assert test_dto.description == test_model.description
     assert test_dto.episodes == test_model.episodes
     assert test_dto.is_hidden == test_model.is_hidden
+    assert len(test_dto.genres) == 2
 
     db_session.delete(test_model)
     db_session.commit()
@@ -91,7 +105,7 @@ def test_get_list(db_session, anime_repository):
     db_session.commit()
 
 
-def test_update(db_session, anime_repository):
+def test_update_no_genre(db_session, anime_repository):
     anime_id = uuid4()
 
     test_model = Anime.create_test_anime(
@@ -124,6 +138,25 @@ def test_update(db_session, anime_repository):
 
     db_session.delete(test_model)
     db_session.commit()
+
+
+def test_update_with_genres(db_session, genres_dict, anime_repository):
+    anime_title = f'Test Anime {int(time.time())}'
+    test_genres = (genres_dict['sports'], genres_dict['romance'])
+    test_model = Anime.create_test_anime(title=anime_title)
+    test_model.genres.extend(test_genres)
+    db_session.add(test_model)
+    db_session.commit()
+
+    update_data = AnimeDTO(
+        id=test_model.id,
+        title=anime_title,
+        description=test_model.description,
+        episodes=test_model.episodes,
+        is_hidden=test_model.is_hidden,
+        genres = [GenreDTO(id=test_genres[0].id, name=test_genres[0].name)]
+    )
+    anime_repository.update(update_data)
 
 
 def test_delete(db_session, anime_repository):

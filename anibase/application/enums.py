@@ -1,15 +1,16 @@
 from enum import Enum
 
 class GenreEnum(str, Enum):
-    ACTION = 'Action'
-    ADVENTURE = 'Adventure'
-    DRAMA = 'Drama'
-    COMEDY = 'Comedy'
-    DETECTIVE = 'Detective'
-    ECCHI = 'Ecchi'
-    FANTASY = 'Fantasy'
-    HORROR = 'Horror'
-    SCI_FI = 'Sci-Fi'
-    SLICE_OF_LIFE = 'Slice of Life'
-    SPORTS = 'Sports'
+    ACTION = 'action'
+    ADVENTURE = 'adventure'
+    DRAMA = 'drama'
+    COMEDY = 'comedy'
+    DETECTIVE = 'detective'
+    ECCHI = 'ecchi'
+    FANTASY = 'fantasy'
+    HORROR = 'horror'
+    ROMANCE = 'romance'
+    SCI_FI = 'sci-fi'
+    SLICE_OF_LIFE = 'slice of life'
+    SPORTS = 'sports'
 

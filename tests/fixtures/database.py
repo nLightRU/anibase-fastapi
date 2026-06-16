@@ -39,12 +39,12 @@ def setup_db():
             session.commit()
         if not session.scalar(select(Genre)):
             session.add_all([
-                Genre(name='Ecchi'),
-                Genre(name='Horror'),
-                Genre(name='Romance'),
-                Genre(name='Sci-Fi'),
-                Genre(name='Sports'),
-                Genre(name='Adventure')
+                Genre(name='ecchi'),
+                Genre(name='horror'),
+                Genre(name='romance'),
+                Genre(name='sci-fi'),
+                Genre(name='sports'),
+                Genre(name='adventure')
             ])
             session.commit()
     finally:
