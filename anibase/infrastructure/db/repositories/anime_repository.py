@@ -61,6 +61,14 @@ class AnimeRepository:
         anime_model.episodes = anime_dto.episodes
         anime_model.is_hidden = anime_dto.is_hidden
 
+        new_genres = self._session.scalars(
+            select(Genre)
+            .where(Genre.id.in_([g.id for g in anime_dto.genres]))
+        )
+
+        anime_model.genres.clear()
+        anime_model.genres.extend(new_genres)
+
         self._session.commit()
         self._session.refresh(anime_model)
 

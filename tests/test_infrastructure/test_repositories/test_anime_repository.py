@@ -156,7 +156,13 @@ def test_update_with_genres(db_session, genres_dict, anime_repository):
         is_hidden=test_model.is_hidden,
         genres = [GenreDTO(id=test_genres[0].id, name=test_genres[0].name)]
     )
-    anime_repository.update(update_data)
+    updated = anime_repository.update(update_data)
+
+    assert updated is not None
+    assert len(updated.genres) == 1
+
+    db_session.delete(test_model)
+    db_session.commit()
 
 
 def test_delete(db_session, anime_repository):
