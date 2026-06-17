@@ -11,8 +11,8 @@ def auth_service(user_repository, role_repository):
 
 
 @pytest.fixture
-def anime_service(anime_repository):
-    return AnimeService(anime_repository)
+def anime_service(anime_repository, genre_repository):
+    return AnimeService(anime_repository, genre_repository)
 
 
 @pytest.fixture
