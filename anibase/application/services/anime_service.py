@@ -48,8 +48,22 @@ class AnimeService:
         except Exception as e:
             raise e
 
+    def get_genre_by_id(self, genre_id: UUID) -> GenreDTO:
+        dto = self.genre_repository.get_by_id(genre_id)
+        if dto is None:
+            raise ValueError('Genre not found')
+        return dto
+
+    def list_genres(self) -> list[GenreDTO]:
+        genres = self.genre_repository.list_genres()
+        return genres
+
     def update_genre(self, genre: GenreDTO) -> GenreDTO:
         try:
             updated_genre = self.genre_repository.update(genre)
+            return updated_genre
         except Exception as e:
             raise e
+
+    def delete_genre(self, genre_id: UUID):
+        ...

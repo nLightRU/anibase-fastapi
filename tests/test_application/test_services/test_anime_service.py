@@ -1,9 +1,11 @@
 import time
 
 import pytest
+from sqlalchemy import delete
 
-from anibase.infrastructure.db.models import Anime
-from anibase.application.dto import AnimeDTO
+from anibase.infrastructure.db.models import Anime, Genre
+from anibase.application.dto import AnimeDTO, GenreDTO
+
 
 def test_create_anime_no_genres(db_session, anime_service):
     title = f'Test Anime {int(time.time())}'
@@ -78,3 +80,22 @@ def test_delete_anime(db_session, anime_service):
     db_session.commit()
 
     anime_service.delete(test_model.id)
+
+
+def test_create_genre(db_session, anime_service):
+    genre_str = 'fantasy'
+
+    created_genre = anime_service.create_genre(genre_str)
+    assert isinstance(created_genre, GenreDTO)
+    assert created_genre.name.value == genre_str
+
+
+def test_list_genres(anime_service):
+    genres = anime_service.list_genres()
+    assert isinstance(genres, list)
+    assert len(genres) > 0
+    assert isinstance(genres[0], GenreDTO)
+
+
+def test_delete_genre(db_session, anime_service):
+    ...

@@ -24,6 +24,12 @@ class GenreRepository:
             name=g.name
         )
 
+    def list_genres(self) -> list[GenreDTO]:
+        genres = self._session.scalars(select(Genre)).all()
+        if genres:
+            return [GenreDTO(id=g.id, name=g.name) for g in genres]
+        return []
+
 
     def get_by_id(self, genre_id: UUID) -> GenreDTO | None:
         g = self._session.get(Genre, genre_id)
