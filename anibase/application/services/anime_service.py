@@ -65,5 +65,8 @@ class AnimeService:
         except Exception as e:
             raise e
 
-    def delete_genre(self, genre_id: UUID):
-        ...
+    def delete_genre(self, genre_id: UUID) -> None:
+        try:
+            self.genre_repository.delete(genre_id)
+        except Exception as e:
+            raise e

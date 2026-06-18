@@ -1,4 +1,5 @@
 import time
+from uuid import uuid4
 
 import pytest
 from sqlalchemy import delete
@@ -98,4 +99,10 @@ def test_list_genres(anime_service):
 
 
 def test_delete_genre(db_session, anime_service):
-    ...
+    genre_id = uuid4()
+    g = Genre(id=genre_id, name='fantasy')
+    db_session.add(g)
+    db_session.commit()
+    anime_service.delete_genre(genre_id)
+    deleted_genre = db_session.get(Genre, genre_id)
+    assert deleted_genre is None
