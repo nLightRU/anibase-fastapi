@@ -10,7 +10,8 @@ from anibase.infrastructure.db.repositories import (
     UserRepository,
     AnimeRepository,
     UserAnimeRepository,
-    RoleRepository
+    RoleRepository,
+    GenreRepository
 )
 
 from anibase.application.services import  (
@@ -18,7 +19,6 @@ from anibase.application.services import  (
     AnimeService,
     UserAnimeService
 )
-
 
 bearer = HTTPBearer()
 
@@ -43,6 +43,10 @@ def get_anime_repo(sess: Session = Depends(get_session)):
     return AnimeRepository(sess)
 
 
+def get_genre_repo(sess: Session = Depends(get_session)):
+    return GenreRepository(sess)
+
+
 def get_user_anime_repo(sess: Session = Depends(get_session)):
     return UserAnimeRepository(sess)
 
@@ -55,9 +59,10 @@ def get_auth_service(
 
 
 def get_anime_service(
-    anime_repo: AnimeRepository = Depends(get_anime_repo)
+    anime_repo: AnimeRepository = Depends(get_anime_repo),
+    genre_repo: GenreRepository = Depends(get_genre_repo)
 ):
-    return AnimeService(anime_repo)
+    return AnimeService(anime_repo, genre_repo)
 
 
 def get_user_anime_service(

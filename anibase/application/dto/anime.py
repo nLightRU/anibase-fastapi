@@ -23,13 +23,17 @@ class AnimeDTO(BaseModel):
         anime_id = UUID('00000000-0000-0000-0000-000000000000')
         if isinstance(body, AnimeUpdateRequest):
             anime_id = body.id
+        genres = [
+            GenreDTO( id=UUID('00000000-0000-0000-0000-000000000000'), name=g)
+            for g in body.genres
+        ]
         return cls(
             id=anime_id,
             title=body.title,
             description=body.description,
             episodes=body.episodes,
             is_hidden=body.is_hidden,
-            genres=[]
+            genres=genres
         )
 
     @classmethod

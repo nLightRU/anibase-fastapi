@@ -20,8 +20,13 @@ def create_anime(
     admin_id: UUID = Depends(get_admin_user),
 ) -> AnimeResponse:
     anime_dto = AnimeDTO.from_request_scheme(body)
-    anime = anime_service.create(anime_dto)
-    return AnimeResponse(id=anime.id, title=anime.title, description=anime.description)
+    try:
+        anime = anime_service.create_anime(anime_dto)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    genres = [g.name for g in anime.genres]
+    return AnimeResponse(id=anime.id, title=anime.title, description=anime.description, genres=genres)
 
 
 @router.get("/", response_model=list[AnimeResponse], status_code=200)
@@ -43,7 +48,7 @@ def get_anime(
     admin_id: UUID = Depends(get_admin_user),
 ) -> AnimeResponse:
     try:
-        anime = anime_service.get_by_id(anime_id)
+        anime = anime_service.get_anime_by_id(anime_id)
         return AnimeResponse(
             id=anime.id,
             title=anime.title,
@@ -83,6 +88,14 @@ def delete_anime(
     admin_id: UUID = Depends(get_admin_user),
 ):
     try:
-        _ = anime_service.soft_delete(anime_id)
+        _ = anime_service.soft_delete_anime(anime_id)
     except ValueError:
         raise HTTPException(status_code=404, detail="Anime not found")
+
+
+@router.post('/genres')
+def create_genre(
+    body,
+    status_code = 201
+):
+    ...
