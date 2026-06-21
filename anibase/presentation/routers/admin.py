@@ -19,14 +19,13 @@ def create_anime(
     anime_service: AnimeService = Depends(get_anime_service),
     admin_id: UUID = Depends(get_admin_user),
 ) -> AnimeResponse:
-    anime_dto = AnimeDTO.from_request_scheme(body)
+    anime_dto = body.to_dto()
     try:
         anime = anime_service.create_anime(anime_dto)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    genres = [g.name for g in anime.genres]
-    return AnimeResponse(id=anime.id, title=anime.title, description=anime.description, genres=genres)
+    return AnimeResponse.from_dto(anime)
 
 
 @router.get("/", response_model=list[AnimeResponse], status_code=200)
@@ -35,10 +34,8 @@ def list_anime(
     admin_id: UUID = Depends(get_admin_user),
 ) -> list[AnimeResponse]:
     anime = anime_service.list_anime()
-    return [
-        AnimeResponse(id=a.id, title=a.title, episodes=a.episodes, description=a.description)
-        for a in anime
-    ]
+    response = [AnimeResponse.from_dto(a) for a in anime]
+    return response
 
 
 @router.get("/{anime_id}", response_model=AnimeResponse, status_code=200)
@@ -49,12 +46,7 @@ def get_anime(
 ) -> AnimeResponse:
     try:
         anime = anime_service.get_anime_by_id(anime_id)
-        return AnimeResponse(
-            id=anime.id,
-            title=anime.title,
-            episodes=anime.episodes,
-            description=anime.description,
-        )
+        return AnimeResponse.from_dto(anime)
     except ValueError:
         raise HTTPException(status_code=404, detail="Anime not found")
 
@@ -68,15 +60,9 @@ def update_anime(
 
 ) -> AnimeResponse:
     try:
-        update_dto = AnimeDTO.from_request_scheme(body)
+        update_dto = body.to_dto()
         updated_anime = anime_service.update_anime(update_dto)
-        return AnimeResponse(
-            id=updated_anime.id,
-            title=updated_anime.title,
-            description=updated_anime.description,
-            episodes=updated_anime.episodes
-        )
-
+        return AnimeResponse.from_dto(updated_anime)
     except ValueError:
         raise HTTPException(status_code=404, detail="Anime not found")
 

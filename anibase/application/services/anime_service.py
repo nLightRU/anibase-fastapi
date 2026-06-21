@@ -31,6 +31,10 @@ class AnimeService:
         return self.anime_repo.get_all()
 
     def update_anime(self, anime: AnimeDTO) -> AnimeDTO:
+        all_genres = {g.name: g for g in self.genres_repo.list_genres()}
+        for g in anime.genres:
+            if g.name in all_genres.keys():
+                g.id = all_genres[g.name].id
         return self.anime_repo.update(anime)
 
     def soft_delete_anime(self, anime_id: UUID) -> AnimeDTO:
